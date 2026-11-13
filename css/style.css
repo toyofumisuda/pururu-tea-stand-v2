@@ -534,3 +534,12 @@ input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; border-radius
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* ---------- 幅の狭いスマホ（〜359px） ---------- */
+.brand-en { white-space: nowrap; }
+@media (max-width: 359px) {
+  :root { --gutter: 18px; }
+  .brand-en { font-size: 14px; letter-spacing: .14em; }
+  .hero-fact { gap: 2px 16px; }
+  .hero-fact span + span::before { display: none; }
+}
