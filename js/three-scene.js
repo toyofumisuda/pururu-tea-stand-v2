@@ -4,9 +4,9 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 // 味ごとの色。liquid＝ドリンク、syrup＝底のシロップ（タピオカが沈んでいる層）
 export const FLAVORS = {
-  milk:   { liquid: '#CFAE88', syrup: '#8B5A3A', syrupO: 0.34, crown: '#FBF7F0' },
+  milk:   { liquid: '#E2CBAA', syrup: '#C9AA82', syrupO: 0.5, crown: '#FBF7F0' },
   matcha: { liquid: '#A3BA78', syrup: '#5E7A3A', syrupO: 0.4, crown: '#F8F6EC' },
-  berry:  { liquid: '#E3C2A6', syrup: '#D25F6A', syrupO: 0.45, crown: '#F2B29B', crumbs: true },
+  berry:  { liquid: '#EDC6BE', syrup: '#D25F6A', syrupO: 0.45, crown: '#F2B29B', crumbs: true },
   kokuto: { liquid: '#D6B796', syrup: '#3E200F', syrupO: 0.86, crown: '#FBF6EE' },
 };
 
@@ -38,7 +38,7 @@ export function detectQuality() {
 
 // カップの寸法
 const H = 3.2;          // 高さ
-const RB = 0.82;        // 底の半径
+const RB = 0.9;         // 底の半径
 const RT = 1.08;        // 口の半径
 const LIQ_TOP = 2.55;   // ドリンクの水面
 const PEARL_R = 0.15;
@@ -136,7 +136,7 @@ export function createDrinkScene(canvas, opts = {}) {
   const tilt = new THREE.Group();
   const spin = new THREE.Group();
   const content = new THREE.Group();
-  content.position.y = -1.75;
+  content.position.y = -1.55;
   scene.add(place);
   place.add(tilt);
   tilt.add(spin);
@@ -148,7 +148,7 @@ export function createDrinkScene(canvas, opts = {}) {
     new THREE.MeshBasicMaterial({ map: shadowTexture(), transparent: true, depthWrite: false })
   );
   shadow.rotation.x = -Math.PI / 2;
-  shadow.position.y = -1.76;
+  shadow.position.y = -1.96;
   shadow.renderOrder = 0;
   place.add(shadow);
 
@@ -281,12 +281,17 @@ export function createDrinkScene(canvas, opts = {}) {
     color: 0xffffff, roughness: 0.05, metalness: 0, transparent: true, opacity: 0.26,
     clearcoat: 1, clearcoatRoughness: 0.04, envMapIntensity: 1.5, side: THREE.DoubleSide, depthWrite: false,
   });
-  const cup = new THREE.Mesh(new THREE.CylinderGeometry(RT, RB, H, q.seg, 1, true), glassMat);
+  const facetMat = glassMat.clone();
+  facetMat.flatShading = true; // 側面に細い面があるタンブラー
+  facetMat.opacity = 0.3;
+  const cup = new THREE.Mesh(new THREE.CylinderGeometry(RT, RB, H, 16, 1, true), facetMat);
   cup.position.y = H / 2;
   cup.renderOrder = 3;
-  const bottom = new THREE.Mesh(new THREE.CircleGeometry(RB, q.seg), glassMat);
-  bottom.rotation.x = -Math.PI / 2;
-  bottom.position.y = 0.01;
+  // 厚いグラスの底
+  const bottom = new THREE.Mesh(new THREE.CylinderGeometry(RB, RB - 0.02, 0.2, 16), new THREE.MeshPhysicalMaterial({
+    color: 0xffffff, roughness: 0.04, transparent: true, opacity: 0.45, clearcoat: 1, envMapIntensity: 1.6, flatShading: true, depthWrite: false,
+  }));
+  bottom.position.y = -0.1;
   bottom.renderOrder = 3;
   content.add(cup, bottom);
 
@@ -297,21 +302,57 @@ export function createDrinkScene(canvas, opts = {}) {
   lid.scale.y = 0.85;
   lid.position.y = H;
   lid.renderOrder = 4;
+  lid.visible = !!opts.lid;
   const rimRing = new THREE.Mesh(
-    new THREE.TorusGeometry(RT + 0.03, 0.055, 10, q.seg),
-    new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.2, transparent: true, opacity: 0.75, clearcoat: 1 })
+    new THREE.TorusGeometry(RT, 0.03, 8, q.seg),
+    new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.1, transparent: true, opacity: 0.6, clearcoat: 1 })
   );
   rimRing.rotation.x = Math.PI / 2;
   rimRing.position.y = H;
   content.add(lid, rimRing);
 
+  // 木の輪切りのコースター（上面に年輪、側面に樹皮）
+  const ringTex = (() => {
+    const c = document.createElement('canvas');
+    c.width = c.height = 256;
+    const g = c.getContext('2d');
+    const grad = g.createRadialGradient(128, 128, 4, 128, 128, 128);
+    grad.addColorStop(0, '#E6CDA6');
+    grad.addColorStop(0.85, '#D7B98E');
+    grad.addColorStop(0.93, '#B98D5E');
+    grad.addColorStop(1, '#6B4A33');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 256, 256);
+    g.strokeStyle = 'rgba(150,110,70,.28)';
+    for (let r = 10; r < 112; r += 7 + Math.random() * 6) {
+      g.lineWidth = 1 + Math.random() * 1.2;
+      g.beginPath();
+      g.ellipse(128 + Math.random() * 3, 128 + Math.random() * 3, r, r * (0.96 + Math.random() * 0.06), 0, 0, Math.PI * 2);
+      g.stroke();
+    }
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  })();
+  const coaster = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.38, 1.42, 0.22, q.seg),
+    [
+      new THREE.MeshStandardMaterial({ color: 0x5c3f2c, roughness: 0.95 }),
+      new THREE.MeshStandardMaterial({ map: ringTex, roughness: 0.8 }),
+      new THREE.MeshStandardMaterial({ color: 0x5c3f2c, roughness: 0.95 }),
+    ]
+  );
+  coaster.position.y = -0.31;
+  coaster.visible = opts.coaster !== false;
+  content.add(coaster);
+
   const strawMat = new THREE.MeshPhysicalMaterial({
-    color: 0xb8322f, roughness: 0.32, metalness: 0, clearcoat: 0.7, clearcoatRoughness: 0.2,
+    color: 0xd0312d, roughness: 0.35, metalness: 0, clearcoat: 0.6, clearcoatRoughness: 0.25,
   });
-  const straw = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 4.8, 28, 1, true), strawMat);
-  straw.position.set(0.32, 2.55, -0.22);
-  straw.rotation.z = -0.13;
-  straw.rotation.x = -0.06;
+  const straw = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 4.9, 28, 1, true), strawMat);
+  straw.position.set(-0.32, 2.6, 0.1);
+  straw.rotation.z = 0.36; // 写真のように、左へ大きく傾けて挿す
+  straw.rotation.x = 0.05;
   content.add(straw);
 
   // ---- 状態と、滑らかに近づける目標値 ----

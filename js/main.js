@@ -5,9 +5,9 @@ const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
 
 // 3Dが使えないときの絵（SVG）用の色。js/three-scene.js の FLAVORS と同じ値
 const FLAVOR_COLORS = {
-  milk:   { liquid: '#CFAE88', syrup: '#8B5A3A', syrupO: 0.34, crown: '#FBF7F0', crumbO: 0, tint: '#F5EFE6', word: 'Milk Tea' },
+  milk:   { liquid: '#E2CBAA', syrup: '#C9AA82', syrupO: 0.5, crown: '#FBF7F0', crumbO: 0, tint: '#F5EFE6', word: 'Milk Tea' },
   matcha: { liquid: '#A3BA78', syrup: '#5E7A3A', syrupO: 0.4, crown: '#F8F6EC', crumbO: 0, tint: '#EEEEE2', word: 'Matcha' },
-  berry:  { liquid: '#E3C2A6', syrup: '#D25F6A', syrupO: 0.45, crown: '#F2B29B', crumbO: 1, tint: '#F5EAE6', word: 'Strawberry' },
+  berry:  { liquid: '#EDC6BE', syrup: '#D25F6A', syrupO: 0.45, crown: '#F2B29B', crumbO: 1, tint: '#F5EAE6', word: 'Strawberry' },
   kokuto: { liquid: '#D6B796', syrup: '#3E200F', syrupO: 0.86, crown: '#FBF6EE', crumbO: 0, tint: '#EFE6DB', word: 'Kokuto' },
 };
 
@@ -230,7 +230,7 @@ async function start3D() {
   if (reduceMotion) return;
   let mod;
   try {
-    mod = await import('./three-scene.js?v=2');
+    mod = await import('./three-scene.js?v=3');
   } catch (err) {
     console.warn('3Dを読み込めなかったため、イラストで表示します。', err);
     return;
@@ -241,9 +241,9 @@ async function start3D() {
   try {
     heroScene = mod.createDrinkScene($('[data-drink-canvas]'), {
       quality,
-      crown: true,
       onFail: () => stage.classList.remove('is-3d'),
     });
+    heroScene.setIce(2); // 写真のように、上に氷を浮かべる
     stage.classList.add('is-3d');
     applyStep(activeStep);
   } catch (err) {

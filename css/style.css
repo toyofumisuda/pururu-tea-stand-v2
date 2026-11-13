@@ -203,7 +203,7 @@ button, input, textarea, select { font: inherit; color: inherit; }
 .stage-fallback {
   position: absolute; inset: 0; z-index: 1;
   display: grid; place-items: center;
-  --liquid: #CFAE88; --syrup: #8B5A3A; --syrup-o: .34;
+  --liquid: #E2CBAA; --syrup: #C9AA82; --syrup-o: .5;
 }
 .is-3d > .stage-fallback { display: none; }
 .stage > .stage-fallback svg { width: min(46vw, 230px); height: auto; transform: translateY(4vh); }
@@ -543,3 +543,25 @@ input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; border-radius
   .hero-fact { gap: 2px 16px; }
   .hero-fact span + span::before { display: none; }
 }
+
+/* ---------- 写真（撮影：オーナー） ---------- */
+.insta-photo img { width: 100%; height: 100%; object-fit: cover; transition: transform .8s var(--ease); }
+.insta-photo:hover img { transform: scale(1.03); }
+
+.kodawari-grid { display: grid; gap: 36px; margin-top: 44px; }
+.kodawari-photo { margin: 0; overflow: hidden; border-radius: var(--r-frame); aspect-ratio: 1; max-width: 460px; }
+.kodawari-photo img { width: 100%; height: 100%; object-fit: cover; }
+.kodawari-grid .feature-grid { grid-template-columns: 1fr; margin-top: 0; border-top: 1px solid var(--line-strong); }
+.kodawari-grid .feature-card { padding: 26px 0 28px; border-left: 0; border-bottom: 1px solid var(--line); }
+.kodawari-grid .feature-card:first-child { padding-left: 0; }
+@media (min-width: 600px) and (max-width: 959px) {
+  .kodawari-photo { max-width: none; aspect-ratio: 16 / 10; }
+}
+@media (min-width: 960px) {
+  .kodawari-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 80px; align-items: center; margin-top: 64px; }
+  .kodawari-photo { max-width: none; }
+  .kodawari-grid .feature-card { padding: 28px 0 30px; display: grid; grid-template-columns: 52px 1fr; column-gap: 20px; }
+  .kodawari-grid .feature-icon { grid-row: span 2; margin-top: 4px; }
+  .kodawari-grid .feature-card h3 { margin-top: 0; }
+}
+.keep { word-break: keep-all; }
