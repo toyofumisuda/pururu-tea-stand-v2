@@ -25,7 +25,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Shippori+Mincho+B1:wght@500;600;700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=3">
+  <link rel="stylesheet" href="css/style.css?v=4">
 
   <script type="importmap">
   {
@@ -35,7 +35,7 @@
     }
   }
   </script>
-  <script type="module" src="js/main.js?v=2"></script>
+  <script type="module" src="js/main.js?v=3"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">本文へスキップ</a>
@@ -58,7 +58,7 @@
     </defs>
     <symbol id="cup" viewBox="0 0 200 270">
       <ellipse cx="100" cy="252" rx="64" ry="9" fill="#5B3B2A" opacity=".16"/>
-      <rect x="111" y="-6" width="20" height="210" rx="9" fill="var(--straw, #C88E8C)" transform="rotate(11 121 100)"/>
+      <rect x="112" y="-14" width="19" height="214" rx="5" fill="var(--straw, #B8322F)" transform="rotate(7 121 100)"/>
       <g clip-path="url(#clip-cup)">
         <rect x="40" y="88" width="120" height="160" fill="var(--liquid, #C9A07A)"/>
         <rect x="40" y="186" width="120" height="60" fill="var(--syrup, #8B5A3A)" opacity="var(--syrup-o, .35)"/>
@@ -75,7 +75,13 @@
       </g>
       <path d="M45 72h110l-10 158q-1 12-13 12H68q-12 0-13-12z" fill="url(#g-glass)" stroke="#5B3B2A" stroke-opacity=".22" stroke-width="2"/>
       <path d="M58 92 66 226" stroke="#fff" stroke-opacity=".7" stroke-width="5" stroke-linecap="round"/>
-      <path d="M38 72q62-46 124 0z" fill="#fff" fill-opacity=".5" stroke="#5B3B2A" stroke-opacity=".22" stroke-width="2"/>
+      <g style="opacity: var(--crown-o, 1)">
+        <path d="M47 92V76h106v16z" fill="var(--crown, #FBF7F0)"/>
+        <path d="M44 78c-2-14 8-24 20-22 2-14 18-22 30-14 8-12 28-10 32 4 14-4 28 8 26 22 8 2 6 10 0 10H44z" fill="var(--crown, #FBF7F0)"/>
+        <g fill="#fff" opacity=".7"><circle cx="70" cy="58" r="6"/><circle cx="96" cy="46" r="7"/><circle cx="124" cy="54" r="6"/><circle cx="142" cy="68" r="5"/><circle cx="56" cy="70" r="5"/></g>
+        <g fill="#F1CF86" style="opacity: var(--crumb-o, 0)"><rect x="80" y="40" width="9" height="8" rx="2" transform="rotate(20 84 44)"/><rect x="100" y="34" width="10" height="8" rx="2"/><rect x="118" y="44" width="9" height="8" rx="2" transform="rotate(-15 122 48)"/><rect x="92" y="52" width="8" height="7" rx="2"/><rect x="66" y="52" width="8" height="7" rx="2" transform="rotate(30 70 55)"/><rect x="132" y="58" width="8" height="7" rx="2"/></g>
+      </g>
+      <path d="M38 72c4-60 120-60 124 0z" fill="#fff" fill-opacity=".28" stroke="#5B3B2A" stroke-opacity=".2" stroke-width="2"/>
       <rect x="36" y="68" width="128" height="9" rx="4.5" fill="#fff" fill-opacity=".85" stroke="#5B3B2A" stroke-opacity=".2" stroke-width="1.5"/>
     </symbol>
   </svg>
@@ -214,7 +220,7 @@
         <div class="tab-panel" role="tabpanel" id="panel-milk" aria-labelledby="tab-milk">
           <ul class="menu-list">
             <li class="menu-item">
-              <svg class="menu-thumb" viewBox="0 0 200 270" aria-hidden="true"><use href="#cup" style="--liquid:#C9A07A"/></svg>
+              <svg class="menu-thumb" viewBox="0 0 200 270" aria-hidden="true"><use href="#cup" style="--liquid:#CFAE88"/></svg>
               <div class="menu-body">
                 <p class="badge badge-pink">人気No.1</p>
                 <h3>ぷるるミルクティー</h3>
@@ -245,7 +251,7 @@
         <div class="tab-panel" role="tabpanel" id="panel-fruit" aria-labelledby="tab-fruit" hidden>
           <ul class="menu-list">
             <li class="menu-item">
-              <svg class="menu-thumb" viewBox="0 0 200 270" aria-hidden="true"><use href="#cup" style="--liquid:#EDB7B5;--syrup:#D9737A;--syrup-o:.7"/></svg>
+              <svg class="menu-thumb" viewBox="0 0 200 270" aria-hidden="true"><use href="#cup" style="--liquid:#E3C2A6;--syrup:#D25F6A;--syrup-o:.45;--crown:#F2B29B;--crumb-o:1"/></svg>
               <div class="menu-body">
                 <p class="badge badge-pink">人気No.2</p>
                 <h3>いちごミルクティー</h3>
@@ -254,7 +260,7 @@
               <p class="price">¥650<small>税込</small></p>
             </li>
             <li class="menu-item">
-              <svg class="menu-thumb" viewBox="0 0 200 270" aria-hidden="true"><use href="#cup" style="--liquid:#F2C9A0;--syrup:#E8A57A;--syrup-o:.5"/></svg>
+              <svg class="menu-thumb" viewBox="0 0 200 270" aria-hidden="true"><use href="#cup" style="--liquid:#F2C9A0;--syrup:#E8A57A;--syrup-o:.5;--crown-o:0"/></svg>
               <div class="menu-body">
                 <h3>白桃ウーロン</h3>
                 <p>白桃の果肉と、すっきりした烏龍茶。ミルクなしで軽く飲みたい日に。</p>
@@ -262,7 +268,7 @@
               <p class="price">¥640<small>税込</small></p>
             </li>
             <li class="menu-item">
-              <svg class="menu-thumb" viewBox="0 0 200 270" aria-hidden="true"><use href="#cup" style="--liquid:#E9DC8E;--syrup:#C9B24E;--syrup-o:.4"/></svg>
+              <svg class="menu-thumb" viewBox="0 0 200 270" aria-hidden="true"><use href="#cup" style="--liquid:#E9DC8E;--syrup:#C9B24E;--syrup-o:.4;--crown-o:0"/></svg>
               <div class="menu-body">
                 <p class="badge">さっぱり</p>
                 <h3>瀬戸内レモン緑茶</h3>
@@ -308,8 +314,7 @@
             <canvas class="custom-canvas" data-custom-canvas></canvas>
             <div class="stage-fallback custom-fallback" data-custom-fallback>
               <svg viewBox="0 0 200 270">
-                <use href="#cup"/>
-                <g data-fb="foam"><path d="M47 88h106l-1.2 18H48.2z" fill="#FFF6E8"/></g>
+                <use href="#cup" style="--crown-o: 0"/>
                 <g data-fb="ice" fill="#fff" fill-opacity=".55" stroke="#fff" stroke-opacity=".9">
                   <rect x="62" y="92" width="22" height="22" rx="4" transform="rotate(-12 73 103)" data-ice="1"/>
                   <rect x="110" y="96" width="22" height="22" rx="4" transform="rotate(14 121 107)" data-ice="2"/>
@@ -386,7 +391,7 @@
           <li class="insta-tile" style="--bg:#EFE3DE">
             <svg viewBox="0 0 300 300" role="img" aria-label="ピンクの背景に、苺ミルクのカップ">
               <circle cx="60" cy="70" r="26" fill="#fff" opacity=".5"/><circle cx="250" cy="230" r="40" fill="#fff" opacity=".4"/>
-              <g transform="translate(150 160) rotate(-6) translate(-82 -110)"><svg width="164" height="221" viewBox="0 0 200 270"><use href="#cup" style="--liquid:#EDB7B5;--syrup:#D9737A;--syrup-o:.7"/></svg></g>
+              <g transform="translate(150 160) rotate(-6) translate(-82 -110)"><svg width="164" height="221" viewBox="0 0 200 270"><use href="#cup" style="--liquid:#E3C2A6;--syrup:#D25F6A;--syrup-o:.45;--crown:#F2B29B;--crumb-o:1"/></svg></g>
             </svg>
           </li>
           <li class="insta-tile" style="--bg:#E6E7D9">
@@ -398,19 +403,19 @@
           <li class="insta-tile" style="--bg:#2B1D16">
             <svg viewBox="0 0 300 300" role="img" aria-label="こげ茶の背景に、黒糖ミルクのカップ">
               <circle cx="150" cy="150" r="118" fill="#fff" opacity=".07"/>
-              <g transform="translate(150 158) rotate(5) translate(-82 -110)"><svg width="164" height="221" viewBox="0 0 200 270"><use href="#cup" style="--liquid:#D6B796;--syrup:#3A1E10;--syrup-o:.85;--straw:#F2DEDA"/></svg></g>
+              <g transform="translate(150 158) rotate(5) translate(-82 -110)"><svg width="164" height="221" viewBox="0 0 200 270"><use href="#cup" style="--liquid:#D6B796;--syrup:#3A1E10;--syrup-o:.85"/></svg></g>
             </svg>
           </li>
           <li class="insta-tile" style="--bg:#EDE4D7">
             <svg viewBox="0 0 300 300" role="img" aria-label="ベージュの背景に、ミルクティーが2杯">
-              <g transform="translate(108 162) rotate(-8) translate(-70 -94)"><svg width="140" height="189" viewBox="0 0 200 270"><use href="#cup" style="--liquid:#C9A07A"/></svg></g>
-              <g transform="translate(196 166) rotate(7) translate(-70 -94)"><svg width="140" height="189" viewBox="0 0 200 270"><use href="#cup" style="--liquid:#B48760;--straw:#5B3B2A"/></svg></g>
+              <g transform="translate(108 162) rotate(-8) translate(-70 -94)"><svg width="140" height="189" viewBox="0 0 200 270"><use href="#cup" style="--liquid:#CFAE88"/></svg></g>
+              <g transform="translate(196 166) rotate(7) translate(-70 -94)"><svg width="140" height="189" viewBox="0 0 200 270"><use href="#cup" style="--liquid:#B48760"/></svg></g>
             </svg>
           </li>
           <li class="insta-tile" style="--bg:#F2EBDB">
             <svg viewBox="0 0 300 300" role="img" aria-label="黄色の背景に、レモン緑茶とレモンの輪切り">
               <g transform="translate(232 70)"><circle r="30" fill="#F4D65E"/><circle r="24" fill="#FBE993"/><path d="M0-24V24M-24 0H24M-17-17 17 17M17-17-17 17" stroke="#F4D65E" stroke-width="2.5"/></g>
-              <g transform="translate(140 160) rotate(-4) translate(-82 -110)"><svg width="164" height="221" viewBox="0 0 200 270"><use href="#cup" style="--liquid:#E9DC8E;--syrup:#C9B24E;--syrup-o:.4;--straw:#7D9A5A"/></svg></g>
+              <g transform="translate(140 160) rotate(-4) translate(-82 -110)"><svg width="164" height="221" viewBox="0 0 200 270"><use href="#cup" style="--liquid:#E9DC8E;--syrup:#C9B24E;--syrup-o:.4;--crown-o:0"/></svg></g>
             </svg>
           </li>
           <li class="insta-tile" style="--bg:#E3D7C6">

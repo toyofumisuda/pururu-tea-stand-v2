@@ -4,10 +4,10 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 // 味ごとの色。liquid＝ドリンク、syrup＝底のシロップ（タピオカが沈んでいる層）
 export const FLAVORS = {
-  milk:   { liquid: '#C29469', syrup: '#8B5A3A', syrupO: 0.38 },
-  matcha: { liquid: '#A3BA78', syrup: '#5E7A3A', syrupO: 0.4 },
-  berry:  { liquid: '#EDB7B5', syrup: '#D25F6A', syrupO: 0.6 },
-  kokuto: { liquid: '#D6B796', syrup: '#3E200F', syrupO: 0.86 },
+  milk:   { liquid: '#CFAE88', syrup: '#8B5A3A', syrupO: 0.34, crown: '#FBF7F0' },
+  matcha: { liquid: '#A3BA78', syrup: '#5E7A3A', syrupO: 0.4, crown: '#F8F6EC' },
+  berry:  { liquid: '#E3C2A6', syrup: '#D25F6A', syrupO: 0.45, crown: '#F2B29B', crumbs: true },
+  kokuto: { liquid: '#D6B796', syrup: '#3E200F', syrupO: 0.86, crown: '#FBF6EE' },
 };
 
 export function canUseWebGL() {
@@ -189,17 +189,47 @@ export function createDrinkScene(canvas, opts = {}) {
   pearls.renderOrder = 2;
   content.add(pearls);
 
-  // ---- トッピング ----
-  const foam = new THREE.Mesh(
-    new THREE.CylinderGeometry(rIn(2.95), rIn(LIQ_TOP - 0.02), 0.4, q.seg),
-    new THREE.MeshStandardMaterial({ color: 0xfff3e0, roughness: 0.92 })
-  );
-  foam.position.y = LIQ_TOP + 0.18;
-  foam.scale.y = 0.001;
-  foam.visible = false;
-  content.add(foam);
-
+  // ---- ふちから盛り上がるフワフワのトッピング（チーズフォーム） ----
   const rand = seeded(42);
+  const crownMat = new THREE.MeshStandardMaterial({ color: 0xfbf7f0, roughness: 0.95 });
+  const crown = new THREE.Group();
+  crown.position.y = LIQ_TOP;
+  const crownR = rIn(H);
+  const crownBase = new THREE.Mesh(new THREE.CylinderGeometry(crownR, rIn(LIQ_TOP), H - LIQ_TOP, q.seg), crownMat);
+  crownBase.position.y = (H - LIQ_TOP) / 2;
+  const mound = new THREE.Mesh(new THREE.SphereGeometry(crownR, q.seg, 16, 0, Math.PI * 2, 0, Math.PI / 2), crownMat);
+  mound.scale.y = 0.5;
+  mound.position.y = H - LIQ_TOP;
+  const puffCount = q.pearls >= 30 ? 160 : 100;
+  const puffs = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 1), crownMat, puffCount);
+  const pd = new THREE.Object3D();
+  for (let i = 0; i < puffCount; i++) {
+    const th = Math.acos(rand() * 0.92);           // 上の半球に散らす
+    const ph = rand() * Math.PI * 2;
+    pd.position.set(Math.sin(th) * Math.cos(ph) * crownR, H - LIQ_TOP + Math.cos(th) * crownR * 0.5, Math.sin(th) * Math.sin(ph) * crownR);
+    pd.scale.setScalar(0.055 + rand() * 0.075);
+    pd.updateMatrix();
+    puffs.setMatrixAt(i, pd.matrix);
+  }
+  crown.add(crownBase, mound, puffs);
+  // 苺のときだけ、上にクランブルをのせる
+  const crumbs = new THREE.Group();
+  const crumbMat = new THREE.MeshStandardMaterial({ color: 0xf1cf86, roughness: 0.75 });
+  for (let i = 0; i < 24; i++) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.13, 0.15), crumbMat);
+    const th = Math.acos(0.45 + rand() * 0.55);
+    const ph = rand() * Math.PI * 2;
+    m.position.set(Math.sin(th) * Math.cos(ph) * crownR * 0.95, H - LIQ_TOP + Math.cos(th) * crownR * 0.5 + 0.12, Math.sin(th) * Math.sin(ph) * crownR * 0.95);
+    m.rotation.set(rand() * 3, rand() * 3, rand() * 3);
+    m.scale.setScalar(0.7 + rand() * 0.6);
+    crumbs.add(m);
+  }
+  crumbs.visible = false;
+  crown.add(crumbs);
+  crown.scale.y = 0.001;
+  crown.visible = false;
+  content.add(crown);
+
   const nataMat = new THREE.MeshPhysicalMaterial({ color: 0xfffaf0, roughness: 0.15, transparent: true, opacity: 0.85, clearcoat: 1 });
   const nata = new THREE.Group();
   for (let i = 0; i < 9; i++) {
@@ -264,7 +294,7 @@ export function createDrinkScene(canvas, opts = {}) {
     new THREE.SphereGeometry(RT + 0.03, q.seg, 14, 0, Math.PI * 2, 0, Math.PI * 0.42),
     glassMat
   );
-  lid.scale.y = 0.48;
+  lid.scale.y = 0.85;
   lid.position.y = H;
   lid.renderOrder = 4;
   const rimRing = new THREE.Mesh(
@@ -276,11 +306,12 @@ export function createDrinkScene(canvas, opts = {}) {
   content.add(lid, rimRing);
 
   const strawMat = new THREE.MeshPhysicalMaterial({
-    color: 0xc88e8c, roughness: 0.3, metalness: 0, transparent: true, opacity: 0.92, clearcoat: 0.6,
+    color: 0xb8322f, roughness: 0.32, metalness: 0, clearcoat: 0.7, clearcoatRoughness: 0.2,
   });
-  const straw = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 4.7, 28, 1, true), strawMat);
-  straw.position.set(0.2, 2.45, 0.05);
-  straw.rotation.z = -0.2;
+  const straw = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 4.8, 28, 1, true), strawMat);
+  straw.position.set(0.32, 2.55, -0.22);
+  straw.rotation.z = -0.13;
+  straw.rotation.x = -0.06;
   content.add(straw);
 
   // ---- 状態と、滑らかに近づける目標値 ----
@@ -288,6 +319,7 @@ export function createDrinkScene(canvas, opts = {}) {
     liquid: new THREE.Color(FLAVORS.milk.liquid),
     syrup: new THREE.Color(FLAVORS.milk.syrup),
     syrupO: FLAVORS.milk.syrupO,
+    crown: new THREE.Color(FLAVORS.milk.crown),
   };
   const target = {
     flavor: 'milk',
@@ -381,16 +413,18 @@ export function createDrinkScene(canvas, opts = {}) {
     // 氷はぷかぷか
     ice.forEach((m, i) => {
       const u = m.userData;
-      m.position.y = LIQ_TOP + 0.06 + 0.34 * cur.foam + Math.sin(elapsed * 1.3 + u.ph) * 0.03;
+      m.position.y = LIQ_TOP + 0.06 + Math.sin(elapsed * 1.3 + u.ph) * 0.03;
       m.rotation.y = u.rot[1] + Math.sin(elapsed * 0.5 + i) * 0.1;
     });
 
-    // チーズフォームは、ぷるんと出てくる
-    const foamGoal = target.toppings.foam ? 1 : 0;
-    cur.foam += (foamGoal - cur.foam) * (1 - Math.exp(-dt * 7));
-    foam.visible = cur.foam > 0.01;
-    foam.scale.y = Math.max(0.001, cur.foam);
-    foam.position.y = LIQ_TOP - 0.02 + 0.2 * cur.foam;
+    // フワフワのトッピングは、ぷるんと盛り上がって出てくる
+    const foamGoal = opts.crown || target.toppings.foam ? 1 : 0;
+    cur.foam += (foamGoal - cur.foam) * (1 - Math.exp(-dt * 6));
+    crown.visible = cur.foam > 0.01;
+    crown.scale.set(1 + (1 - cur.foam) * 0.04, Math.max(0.001, cur.foam), 1 + (1 - cur.foam) * 0.04);
+    state.crown.lerp(tmpColor.set(f.crown), k);
+    crownMat.color.copy(state.crown);
+    crumbs.visible = !!f.crumbs && cur.foam > 0.6;
 
     renderer.render(scene, camera);
   }

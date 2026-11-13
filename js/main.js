@@ -5,10 +5,10 @@ const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
 
 // 3Dが使えないときの絵（SVG）用の色。js/three-scene.js の FLAVORS と同じ値
 const FLAVOR_COLORS = {
-  milk:   { liquid: '#C29469', syrup: '#8B5A3A', syrupO: 0.38, tint: '#F5EFE6', word: 'Milk Tea' },
-  matcha: { liquid: '#A3BA78', syrup: '#5E7A3A', syrupO: 0.4, tint: '#EEEEE2', word: 'Matcha' },
-  berry:  { liquid: '#EDB7B5', syrup: '#D25F6A', syrupO: 0.6, tint: '#F5EAE6', word: 'Strawberry' },
-  kokuto: { liquid: '#D6B796', syrup: '#3E200F', syrupO: 0.86, tint: '#EFE6DB', word: 'Kokuto' },
+  milk:   { liquid: '#CFAE88', syrup: '#8B5A3A', syrupO: 0.34, crown: '#FBF7F0', crumbO: 0, tint: '#F5EFE6', word: 'Milk Tea' },
+  matcha: { liquid: '#A3BA78', syrup: '#5E7A3A', syrupO: 0.4, crown: '#F8F6EC', crumbO: 0, tint: '#EEEEE2', word: 'Matcha' },
+  berry:  { liquid: '#E3C2A6', syrup: '#D25F6A', syrupO: 0.45, crown: '#F2B29B', crumbO: 1, tint: '#F5EAE6', word: 'Strawberry' },
+  kokuto: { liquid: '#D6B796', syrup: '#3E200F', syrupO: 0.86, crown: '#FBF6EE', crumbO: 0, tint: '#EFE6DB', word: 'Kokuto' },
 };
 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -86,6 +86,8 @@ function paintFallback(el, key) {
   el.style.setProperty('--liquid', c.liquid);
   el.style.setProperty('--syrup', c.syrup);
   el.style.setProperty('--syrup-o', c.syrupO);
+  el.style.setProperty('--crown', c.crown);
+  el.style.setProperty('--crumb-o', c.crumbO);
 }
 
 /* ---------- ヒーローと4つの味（スクロールで味が変わる） ---------- */
@@ -198,7 +200,8 @@ function updateCustom() {
   }
   // 3Dが使えないときの絵
   paintFallback(customFallback, s.flavor);
-  $('[data-fb="foam"]', customFallback).style.opacity = s.toppings.foam ? 1 : 0;
+  customFallback.style.setProperty('--crown-o', s.toppings.foam ? 1 : 0);
+  if (!s.toppings.foam) customFallback.style.setProperty('--crumb-o', 0);
   $('[data-fb="nata"]', customFallback).style.opacity = s.toppings.nata ? 1 : 0;
   $('[data-fb="azuki"]', customFallback).style.opacity = s.toppings.azuki ? 1 : 0;
   $$('[data-ice]', customFallback).forEach((r) => { r.style.opacity = Number(r.dataset.ice) <= s.ice ? 1 : 0; });
@@ -227,7 +230,7 @@ async function start3D() {
   if (reduceMotion) return;
   let mod;
   try {
-    mod = await import('./three-scene.js?v=1');
+    mod = await import('./three-scene.js?v=2');
   } catch (err) {
     console.warn('3Dを読み込めなかったため、イラストで表示します。', err);
     return;
@@ -238,6 +241,7 @@ async function start3D() {
   try {
     heroScene = mod.createDrinkScene($('[data-drink-canvas]'), {
       quality,
+      crown: true,
       onFail: () => stage.classList.remove('is-3d'),
     });
     stage.classList.add('is-3d');

@@ -203,7 +203,7 @@ button, input, textarea, select { font: inherit; color: inherit; }
 .stage-fallback {
   position: absolute; inset: 0; z-index: 1;
   display: grid; place-items: center;
-  --liquid: #C29469; --syrup: #8B5A3A; --syrup-o: .35;
+  --liquid: #CFAE88; --syrup: #8B5A3A; --syrup-o: .34;
 }
 .is-3d > .stage-fallback { display: none; }
 .stage > .stage-fallback svg { width: min(46vw, 230px); height: auto; transform: translateY(4vh); }
