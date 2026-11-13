@@ -163,6 +163,7 @@ const totalEl = $('[data-total]');
 const totalFloat = $('[data-total-float]');
 const summaryEl = $('[data-summary]');
 let customScene = null;
+let depthPhoto = null;
 let lastTotal = null;
 const ICE_LABEL = ['氷なし', '氷少なめ', '氷ふつう', '氷多め'];
 
@@ -220,17 +221,18 @@ function pointerTo(x, y) {
   const ny = (y / window.innerHeight) * 2 - 1;
   heroScene?.setPointer(nx, ny);
   customScene?.setPointer(nx, ny);
+  depthPhoto?.setPointer(nx, ny);
 }
 window.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') pointerTo(e.clientX, e.clientY); }, { passive: true });
 window.addEventListener('touchmove', (e) => { const t = e.touches[0]; if (t) pointerTo(t.clientX, t.clientY); }, { passive: true });
-window.addEventListener('touchend', () => { heroScene?.setPointer(0, 0); customScene?.setPointer(0, 0); }, { passive: true });
+window.addEventListener('touchend', () => { heroScene?.setPointer(0, 0); customScene?.setPointer(0, 0); depthPhoto?.setPointer(0, 0); }, { passive: true });
 
 /* ---------- 3Dの起動（動きを減らす設定・WebGLなしのときは絵のまま） ---------- */
 async function start3D() {
   if (reduceMotion) return;
   let mod;
   try {
-    mod = await import('./three-scene.js?v=3');
+    mod = await import('./three-scene.js?v=4');
   } catch (err) {
     console.warn('3Dを読み込めなかったため、イラストで表示します。', err);
     return;
@@ -265,6 +267,27 @@ async function start3D() {
   } catch (err) {
     console.warn('シミュレーターの3Dを表示できなかったため、イラストで表示します。', err);
     customScene = null;
+  }
+  // 「こだわり」の写真を 2.5D に（撮影写真＋AIで推定した奥行き地図）
+  const figure = $('[data-depth-photo]');
+  if (figure) {
+    try {
+      depthPhoto = mod.createDepthPhoto($('.depth-canvas', figure), {
+        image: 'img/milktea-photo.jpg',
+        depth: 'img/milktea-depth.png',
+        onReady: () => figure.classList.add('is-3d'),
+        onFail: () => figure.classList.remove('is-3d'),
+      });
+      const onScroll = () => {
+        const r = figure.getBoundingClientRect();
+        depthPhoto.setScroll((r.top + r.height / 2 - window.innerHeight / 2) / window.innerHeight);
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    } catch (err) {
+      console.warn('2.5D写真を表示できなかったため、通常の写真で表示します。', err);
+      depthPhoto = null;
+    }
   }
 }
 applyStep('hero');

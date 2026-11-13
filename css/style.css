@@ -565,3 +565,8 @@ input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; border-radius
   .kodawari-grid .feature-card h3 { margin-top: 0; }
 }
 .keep { word-break: keep-all; }
+
+/* 撮影写真の 2.5D（3Dが使えないときは、ふつうの写真のまま） */
+.kodawari-photo { position: relative; }
+.depth-canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .8s var(--ease); }
+.kodawari-photo.is-3d .depth-canvas { opacity: 1; }

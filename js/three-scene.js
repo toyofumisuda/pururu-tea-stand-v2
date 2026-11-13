@@ -527,3 +527,104 @@ export function createDrinkScene(canvas, opts = {}) {
     resize,
   };
 }
+
+// ============================================================
+// 実写の写真を 2.5D で動かす（写真＋奥行き地図）
+// 奥行き地図は白いほど手前。手前ほど大きくずらして、のぞき込んだような立体感を出す
+// ============================================================
+export function createDepthPhoto(canvas, { image, depth, onReady, onFail } = {}) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, powerPreference: 'low-power' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputColorSpace = THREE.LinearSRGBColorSpace; // 写真の色をそのまま出す
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  const uniforms = {
+    uImage: { value: null },
+    uDepth: { value: null },
+    uOffset: { value: new THREE.Vector2() },
+    uCover: { value: new THREE.Vector2(1, 1) },
+  };
+  const material = new THREE.ShaderMaterial({
+    uniforms,
+    vertexShader: /* glsl */ `
+      varying vec2 vUv;
+      void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }
+    `,
+    fragmentShader: /* glsl */ `
+      uniform sampler2D uImage;
+      uniform sampler2D uDepth;
+      uniform vec2 uOffset;
+      uniform vec2 uCover;
+      varying vec2 vUv;
+      void main() {
+        vec2 uv = (vUv - 0.5) * uCover + 0.5;
+        // 2回たどって、手前と奥の境目のにじみを減らす
+        vec2 o = uOffset * (texture2D(uDepth, uv).r - 0.45);
+        o = uOffset * (texture2D(uDepth, uv + o).r - 0.45);
+        o = uOffset * (texture2D(uDepth, uv + o).r - 0.45);
+        gl_FragColor = texture2D(uImage, clamp(uv + o, 0.001, 0.999));
+      }
+    `,
+  });
+  scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
+
+  const ZOOM = 1.08; // 端のゆがみが見えないよう、少し拡大しておく
+  function resize() {
+    const w = canvas.clientWidth || 1;
+    const h = canvas.clientHeight || 1;
+    renderer.setSize(w, h, false);
+    const a = w / h; // 写真は正方形
+    uniforms.uCover.value.set(a > 1 ? 1 : a, a > 1 ? 1 / a : 1).divideScalar(ZOOM);
+  }
+  resize();
+  const ro = new ResizeObserver(resize);
+  ro.observe(canvas);
+
+  const pointer = new THREE.Vector2();
+  const offset = uniforms.uOffset.value;
+  let scrollY = 0;
+  const clock = new THREE.Clock();
+  let t = 0;
+  function frame() {
+    const dt = Math.min(clock.getDelta(), 0.05);
+    t += dt;
+    const k = 1 - Math.exp(-dt * 3.5);
+    // 指・マウス＋スクロール位置＋ゆっくりした自然なゆらぎ
+    const gx = pointer.x * 0.04 + Math.sin(t * 0.5) * 0.008;
+    const gy = pointer.y * 0.028 + scrollY * 0.04 + Math.cos(t * 0.4) * 0.005;
+    offset.x += (gx - offset.x) * k;
+    offset.y += (gy - offset.y) * k;
+    renderer.render(scene, camera);
+  }
+
+  let onScreen = false;
+  let running = false;
+  function update() {
+    const should = onScreen && !document.hidden && uniforms.uImage.value && uniforms.uDepth.value;
+    if (!!should === running) return;
+    running = !!should;
+    if (running) clock.getDelta();
+    renderer.setAnimationLoop(running ? frame : null);
+  }
+  new IntersectionObserver((e) => { onScreen = e[0].isIntersecting; update(); }).observe(canvas);
+  document.addEventListener('visibilitychange', update);
+
+  const loader = new THREE.TextureLoader();
+  const load = (url) => new Promise((res, rej) => loader.load(url, res, undefined, rej));
+  Promise.all([load(image), load(depth)]).then(([img, dep]) => {
+    [img, dep].forEach((tex) => { tex.colorSpace = THREE.NoColorSpace; tex.minFilter = THREE.LinearFilter; tex.generateMipmaps = false; });
+    uniforms.uImage.value = img;
+    uniforms.uDepth.value = dep;
+    renderer.render(scene, camera);
+    update();
+    if (onReady) onReady();
+  }).catch((err) => { console.warn('2.5D写真を読み込めませんでした。', err); if (onFail) onFail(); });
+
+  canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); renderer.setAnimationLoop(null); if (onFail) onFail(); });
+
+  return {
+    setPointer(nx, ny) { pointer.set(nx, ny); },
+    setScroll(v) { scrollY = Math.max(-1, Math.min(1, v)); },
+  };
+}
